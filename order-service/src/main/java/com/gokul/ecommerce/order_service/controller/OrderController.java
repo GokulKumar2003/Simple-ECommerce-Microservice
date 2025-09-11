@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/core")
 public class OrderController {
 
     private final OrderService orderService;
@@ -27,6 +27,9 @@ public class OrderController {
     public String helloOrders(){
         return "Hello from Orders";
     }
+
+
+
     @GetMapping
     public ResponseEntity<List<OrderRequestDto>> getAllOrders(){
         List<OrderRequestDto> inventories = orderService.getAllOrders();

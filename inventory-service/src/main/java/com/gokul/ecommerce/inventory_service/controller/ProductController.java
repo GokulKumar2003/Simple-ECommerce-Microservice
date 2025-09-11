@@ -1,5 +1,6 @@
 package com.gokul.ecommerce.inventory_service.controller;
 
+import com.gokul.ecommerce.inventory_service.clients.OrdersFeignClient;
 import com.gokul.ecommerce.inventory_service.dto.ProductDto;
 import com.gokul.ecommerce.inventory_service.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -22,26 +23,27 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
-    private final DiscoveryClient discoveryClient;
-    private final RestClient restClient;
+//    private final DiscoveryClient discoveryClient;
+//    private final RestClient restClient;
+    private final OrdersFeignClient ordersFeignClient;
 
     @Autowired
     public ProductController(ProductService productService,
-                             DiscoveryClient discoveryClient,
-                             RestClient restClient){
+                             OrdersFeignClient ordersFeignClient){
         this.productService = productService;
-        this.discoveryClient = discoveryClient;
-        this.restClient = restClient;
+        this.ordersFeignClient = ordersFeignClient;
     }
     @GetMapping("/fetchOrders")
     public String fetchOrders(){
-        ServiceInstance orderService = discoveryClient.getInstances("order" +
-                "-service").getFirst();
+//        ServiceInstance orderService = discoveryClient.getInstances("order" +
+//                "-service").getFirst();
 
-        return restClient.get()
-                .uri(orderService.getUri()+"/api/v1/orders/hello")
-                .retrieve()
-                .body(String.class);
+//        return restClient.get()
+//                .uri(orderService.getUri()+"/orders/core/hello")
+//                .retrieve()
+//                .body(String.class);
+
+        return ordersFeignClient.helloOrders();
     }
     @GetMapping
     public ResponseEntity<List<ProductDto>> getAllInventory(){
