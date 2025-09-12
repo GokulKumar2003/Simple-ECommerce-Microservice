@@ -1,0 +1,38 @@
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+resilience4j:
+  retry:
+    configs:
+      default:
+        maxRetryAttempts: 3
+        waitDuration: 100ms
+    instances:
+      inventoryRetry:
+        baseConfig: default
+        waitDuration: 200ms
+  ratelimiter:
+    instances:
+      inventoryRateLimiter:
+        limitRefreshPeriod: 5s
+        limitForPeriod: 1
+        timeoutDuration: 1s
+  circuitbreaker:
+    instances:
+      inventoryCircuitBreaker:
+        register-health-indicator: true
+        sliding-window-size: 10 # checking the status of last 10 requests
+        failure-rate-threshold: 50 # if 50% of requests fails then circuit opens
+        wait-duration-in-open-state: 10000 # duration in open state before going to half open state
+        permitted-number-of-calls-in-half-open-state: 5
+        sliding-window-type: COUNT_BASED
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true

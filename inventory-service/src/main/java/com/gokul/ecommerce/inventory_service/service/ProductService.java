@@ -1,8 +1,11 @@
 package com.gokul.ecommerce.inventory_service.service;
 
+import com.gokul.ecommerce.inventory_service.dto.OrderRequestDto;
+import com.gokul.ecommerce.inventory_service.dto.OrderRequestItemDto;
 import com.gokul.ecommerce.inventory_service.dto.ProductDto;
 import com.gokul.ecommerce.inventory_service.entity.Product;
 import com.gokul.ecommerce.inventory_service.repository.ProductRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -41,4 +44,39 @@ public class ProductService {
         return inventory.map(item -> modelMapper.map(item, ProductDto.class))
                 .orElseThrow(()-> new RuntimeException("Product not found"));
     }
+
+    @Transactional
+    public Double reduceStocks(OrderRequestDto orderRequestDto) {
+
+        Double totalPrice = 0.0;
+        for(OrderRequestItemDto item : orderRequestDto.getItems()){
+            Long productId = item.getProductId();
+            Integer quantity = item.getQuantity();
+
+            Product product =
+                    productRepository.findById(productId)
+                            .orElseThrow(()-> new RuntimeException("Product not found with id: "+productId));
+
+            if(product.getStock() < quantity){
+                throw new RuntimeException("Product can't be fulfilled");
+            }
+            product.setStock(product.getStock() - quantity);
+            productRepository.save(product);
+            totalPrice += quantity*product.getPrice();
+        }
+        return totalPrice;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
